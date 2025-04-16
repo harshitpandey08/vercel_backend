@@ -1,114 +1,105 @@
-const Pet = require('../models/petModel');
-const Appointment = require('../models/appointmentModel');
+const Pet = require("../models/petModel");
+const Appointment = require("../models/appointmentModel");
+const HealthRecord = require("../models/healthRecordModel");
+const Message = require("../models/messageModel");
 
-
+// @desc    Get dashboard data
+// @route   GET /api/dashboard
+// @access  Private
 const getDashboardData = async (req, res) => {
   try {
     // Get user's pets
     const pets = await Pet.find({ owner: req.user._id });
 
-    // Get upcoming appointments and format them for the dashboard
-    let appointments = [];
-    let pendingAppointments = 0;
-
-    if (req.user.role === 'pet_owner') {
-      const appointmentData = await Appointment.find({ owner: req.user._id })
-        .populate('pet', 'name species breed image')
-        .populate('veterinarian', 'firstName lastName')
+    // Get upcoming appointments
+    let appointments;
+    if (req.user.role === "pet_owner") {
+      appointments = await Appointment.find({ owner: req.user._id })
+        .populate("pet", "name species breed image")
+        .populate("veterinarian", "firstName lastName")
         .sort({ date: 1 })
         .limit(5);
-
-      // Count pending appointments
-      pendingAppointments = await Appointment.countDocuments({
-        owner: req.user._id,
-        status: 'pending'
-      });
-
-      // Format appointments for frontend
-      appointments = appointmentData.map(appointment => ({
-        id: appointment._id,
-        name: appointment.pet.name,
-        type: appointment.type.charAt(0).toUpperCase() + appointment.type.slice(1),
-        date: new Date(appointment.date).toLocaleDateString() + ' ' + appointment.time,
-        veterinar: appointment.veterinarian
-          ? `${appointment.veterinarian.firstName} ${appointment.veterinarian.lastName}`
-          : 'Find veterinar'
-      }));
-    } else if (req.user.role === 'veterinarian') {
-      const appointmentData = await Appointment.find({ veterinarian: req.user._id })
-        .populate('pet', 'name species breed image')
-        .populate('owner', 'firstName lastName')
+    } else if (req.user.role === "veterinarian") {
+      appointments = await Appointment.find({ veterinarian: req.user._id })
+        .populate("pet", "name species breed image")
+        .populate("owner", "firstName lastName")
         .sort({ date: 1 })
         .limit(5);
-
-      // Count pending appointments
-      pendingAppointments = await Appointment.countDocuments({
-        veterinarian: req.user._id,
-        status: 'pending'
-      });
-
-      // Format appointments for frontend
-      appointments = appointmentData.map(appointment => ({
-        id: appointment._id,
-        name: appointment.pet.name,
-        type: appointment.type.charAt(0).toUpperCase() + appointment.type.slice(1),
-        date: new Date(appointment.date).toLocaleDateString() + ' ' + appointment.time,
-        owner: `${appointment.owner.firstName} ${appointment.owner.lastName}`
-      }));
     }
 
-    // Sample chat messages for the dashboard
-    const chatMessages = [
+    // Get recent health records
+    let healthRecords = [];
+    if (pets.length > 0) {
+      const petIds = pets.map((pet) => pet._id);
+      healthRecords = await HealthRecord.find({ pet: { $in: petIds } })
+        .populate("recordedBy", "firstName lastName role")
+        .sort({ date: -1 })
+        .limit(5);
+    }
+
+    // Get unread messages count
+    const unreadMessagesCount = await Message.countDocuments({
+      receiver: req.user._id,
+      isRead: false,
+    });
+
+    // Get sample chat data for the dashboard
+    const chatData = [
       {
         id: 1,
-        name: 'Pet Vet Support',
-        message: 'Welcome to Pet Vet! How can we help you today?',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        unread: 0
-      }
+        sender: "System",
+        message: "Welcome to Pet Vet! How can we help you today?",
+        timestamp: new Date(),
+      },
+      {
+        id: 2,
+        sender: "System",
+        message: "You can use this chat to communicate with veterinarians.",
+        timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
+      },
+      {
+        id: 3,
+        sender: "System",
+        message: "Need help? Just ask!",
+        timestamp: new Date(Date.now() - 1000 * 60 * 10), // 10 minutes ago
+      },
     ];
 
-    // Sample unread messages count
-    const unreadMessagesCount = 0;
-
-    // Sample health records
-    const healthRecords = [];
-
-    // Get health data for charts
-    const healthData = [
-      { month: 'Jan', value: 3 },
-      { month: 'Feb', value: 4 },
-      { month: 'Mar', value: 5 },
-      { month: 'Apr', value: 4 },
-      { month: 'May', value: 6 },
-      { month: 'Jun', value: 7 },
-      { month: 'Jul', value: 8 },
-      { month: 'Aug', value: 7 },
-      { month: 'Sep', value: 6 },
-      { month: 'Oct', value: 8 },
-      { month: 'Nov', value: 9 },
-      { month: 'Dec', value: 8 },
+    // Get activity history data for charts
+    const activityHistory = [
+      { month: "Jan", value: 30 },
+      { month: "Feb", value: 40 },
+      { month: "Mar", value: 45 },
+      { month: "Apr", value: 35 },
+      { month: "May", value: 55 },
+      { month: "Jun", value: 60 },
+      { month: "Jul", value: 65 },
+      { month: "Aug", value: 70 },
+      { month: "Sep", value: 75 },
+      { month: "Oct", value: 80 },
+      { month: "Nov", value: 85 },
+      { month: "Dec", value: 90 },
     ];
 
-    const activityPercentage = 75;
-    const sleepPercentage = 68;
-    const wellnessPercentage = 82;
+    // Get health stats
+    const healthStats = {
+      weight: "25%",
+      nutrition: "70%",
+      activity: "52%",
+    };
 
     res.json({
       pets,
       appointments,
-      pendingAppointments,
       healthRecords,
       unreadMessagesCount,
-      chatMessages,
-      healthData,
-      activityPercentage,
-      sleepPercentage,
-      wellnessPercentage
+      chatData,
+      activityHistory,
+      healthStats,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
