@@ -22,10 +22,15 @@ const dashboardRoutes = require("../routes/dashboardRoutes");
 const app = express();
 
 // Body parser
+app.use(
+  cors({
+    origin: "https://vercel-frontend-tan.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 
-// Enable CORS
-app.use(cors());
 
 // Mount routers
 app.use("/api/users", userRoutes);
