@@ -25,7 +25,17 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://vercel-frontend-two-omega.vercel.app',
+    'http://localhost:5173', // For local development
+    'http://localhost:3000'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
 
 // Mount routers
 app.use("/api/users", userRoutes);
