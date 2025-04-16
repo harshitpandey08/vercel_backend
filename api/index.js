@@ -24,13 +24,13 @@ const app = express();
 // Body parser
 app.use(
   cors({
-    origin: "https://vercel-frontend-tan.vercel.app",
+    origin: "https://vercel-frontend-tan.vercel.app", // ✅ your frontend domain
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true // only if using cookies (optional)
   })
 );
 app.use(express.json());
-
 
 // Mount routers
 app.use("/api/users", userRoutes);
