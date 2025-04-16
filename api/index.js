@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const connectDB = require("./config/db");
+const connectDB = require("../config/db");
 
 // Load env vars
 dotenv.config();
@@ -12,12 +12,12 @@ connectDB().catch((err) => {
 });
 
 // Route files
-const userRoutes = require("./routes/userRoutes");
-const petRoutes = require("./routes/petRoutes");
-const appointmentRoutes = require("./routes/appointmentRoutes");
-const messageRoutes = require("./routes/messageRoutes");
-const healthRecordRoutes = require("./routes/healthRecordRoutes");
-const dashboardRoutes = require("./routes/dashboardRoutes");
+const userRoutes = require("../routes/userRoutes");
+const petRoutes = require("../routes/petRoutes");
+const appointmentRoutes = require("../routes/appointmentRoutes");
+const messageRoutes = require("../routes/messageRoutes");
+const healthRecordRoutes = require("../routes/healthRecordRoutes");
+const dashboardRoutes = require("../routes/dashboardRoutes");
 
 const app = express();
 
