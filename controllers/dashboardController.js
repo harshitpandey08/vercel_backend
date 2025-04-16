@@ -1,7 +1,5 @@
 const Pet = require("../models/petModel");
 const Appointment = require("../models/appointmentModel");
-const HealthRecord = require("../models/healthRecordModel");
-const Message = require("../models/messageModel");
 
 // @desc    Get dashboard data
 // @route   GET /api/dashboard
@@ -27,21 +25,11 @@ const getDashboardData = async (req, res) => {
         .limit(5);
     }
 
-    // Get recent health records
-    let healthRecords = [];
-    if (pets.length > 0) {
-      const petIds = pets.map((pet) => pet._id);
-      healthRecords = await HealthRecord.find({ pet: { $in: petIds } })
-        .populate("recordedBy", "firstName lastName role")
-        .sort({ date: -1 })
-        .limit(5);
-    }
+    // Sample health records (since we removed the HealthRecord model)
+    const healthRecords = [];
 
-    // Get unread messages count
-    const unreadMessagesCount = await Message.countDocuments({
-      receiver: req.user._id,
-      isRead: false,
-    });
+    // Sample unread messages count (since we removed the Message model)
+    const unreadMessagesCount = 0;
 
     // Get sample chat data for the dashboard
     const chatData = [
@@ -88,14 +76,26 @@ const getDashboardData = async (req, res) => {
       activity: "52%",
     };
 
+    // Format the response to match what the frontend expects
     res.json({
       pets,
       appointments,
       healthRecords,
       unreadMessagesCount,
-      chatData,
-      activityHistory,
-      healthStats,
+      chatMessages: chatData.map((item) => ({
+        id: item.id,
+        name: item.sender,
+        message: item.message,
+        time: new Date(item.timestamp).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        unread: 0,
+      })),
+      healthData: activityHistory,
+      activityPercentage: parseInt(healthStats.activity),
+      sleepPercentage: 68,
+      wellnessPercentage: 82,
     });
   } catch (error) {
     console.error(error);
