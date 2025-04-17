@@ -1,5 +1,4 @@
 const express = require("express");
-const serverless = require("serverless-http");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
@@ -11,20 +10,28 @@ connectDB();
 const app = express();
 
 // ✅ CORS setup
-app.use(cors({
-  origin: "https://vercel-frontend-tan.vercel.app", // allow your frontend
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+const allowedOrigins = [
+  "https://vercel-frontend-tan.vercel.app", // Production Vercel deployment
+  "http://localhost:3000", // Local development (if needed)
+];
+
+const corsOptions = { 
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
-}));
+  optionsSuccessStatus: 200
+}; 
 
-// ✅ Manual headers (just to be safe)
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://vercel-frontend-tan.vercel.app");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  next();
-});
-
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
@@ -47,4 +54,3 @@ app.get("/", (req, res) => {
 });
 
 module.exports = app;
-module.exports.handler = serverless(app);
