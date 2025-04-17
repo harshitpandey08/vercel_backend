@@ -9,15 +9,23 @@ connectDB();
 
 const app = express();
 
-// Define CORS options once
-const corsOptions = {
-  origin: 'https://vercel-frontend-tan.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
+// Handle CORS
+app.use((req, res, next) => {
+  // Set CORS headers directly
+  res.setHeader('Access-Control-Allow-Origin', 'https://vercel-frontend-tan.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight OPTIONS requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
 
-// Apply CORS middleware ONCE (not twice like before)
-app.use(cors(corsOptions));
+// Regular middleware
 app.use(express.json());
 
 // Routes
@@ -39,7 +47,6 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to Pet Vet API" });
 });
 
-// module.exports = app;
-app.listen(process.env.PORT, () => {
-  console.log(`server is running on port ${process.env.PORT}`);
+app.listen(process.env.PORT || 5000, () => {
+  console.log(`Server is running on port ${process.env.PORT || 5000}`);
 });
