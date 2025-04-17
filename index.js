@@ -10,21 +10,9 @@ connectDB();
 const app = express();
 
 // ✅ CORS setup
-const allowedOrigins = [
-  "https://vercel-frontend-tan.vercel.app", // Production Vercel deployment
-  "http://localhost:3000", // Local development (if needed)
-];
-
+// On your backend
 const corsOptions = { 
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: process.env.CLIENT_URL || "https://vercel-frontend-tan.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
