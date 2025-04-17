@@ -9,17 +9,14 @@ connectDB();
 
 const app = express();
 
-// ✅ CORS setup
-// On your backend
-const corsOptions = { 
-  origin : '*',
-  // origin: process.env.CLIENT_URL || "https://vercel-frontend-tan.vercel.app",
-  // methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  // allowedHeaders: ["Content-Type", "Authorization"],
-  // credentials: true,
-  optionsSuccessStatus: 200
-}; 
+// Define CORS options once
+const corsOptions = {
+  origin: 'https://vercel-frontend-tan.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
+// Apply CORS middleware ONCE (not twice like before)
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -43,6 +40,6 @@ app.get("/", (req, res) => {
 });
 
 // module.exports = app;
-app.listen(process.env.PORT,()=>{
-  console.log(`server is running on port ${process.env.PORT}`)
-})
+app.listen(process.env.PORT, () => {
+  console.log(`server is running on port ${process.env.PORT}`);
+});
