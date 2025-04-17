@@ -12,7 +12,7 @@ const app = express();
 // Handle CORS
 app.use((req, res, next) => {
   // Set CORS headers directly
-  res.setHeader('Access-Control-Allow-Origin', 'https://vercel-frontend-tan.vercel.app');
+  res.setHeader('Access-Control-Allow-Origin', 'https://vercel-frontend-rose.vercel.app');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
