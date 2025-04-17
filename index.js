@@ -12,10 +12,11 @@ const app = express();
 // ✅ CORS setup
 // On your backend
 const corsOptions = { 
-  origin: process.env.CLIENT_URL || "https://vercel-frontend-tan.vercel.app",
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
+  origin : '*',
+  // origin: process.env.CLIENT_URL || "https://vercel-frontend-tan.vercel.app",
+  // methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  // allowedHeaders: ["Content-Type", "Authorization"],
+  // credentials: true,
   optionsSuccessStatus: 200
 }; 
 
@@ -41,4 +42,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to Pet Vet API" });
 });
 
-module.exports = app;
+// module.exports = app;
+app.listen(process.env.PORT,()=>{
+  console.log(`server is running on port ${process.env.PORT}`)
+})
